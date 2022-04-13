@@ -1,0 +1,47 @@
+---
+
+- name: Install bind9
+  apt:
+    name: bind9
+    state: present
+  become: yes
+
+- name: Create named config
+  template:
+    src: named.conf.j2
+    dest: /etc/bind/named.conf
+    owner: root
+    group: bind
+    mode: '0644'
+  become: yes
+
+- name: Create named local config
+  template:
+    src: named.conf.local.j2
+    dest: /etc/bind/named.conf.local
+    owner: root
+    group: bind
+    mode: '0644'
+  become: yes
+
+- name: Create named options config
+  template:
+    src: named.conf.options.j2
+    dest: /etc/bind/named.conf.options
+    owner: root
+    group: bind
+    mode: '0644'
+  become: yes
+
+- name: Create named default zones config
+  template:
+    src: named.conf.default-zones.j2
+    dest: /etc/bind/named.conf.default-zones
+    owner: root
+    group: bind
+    mode: '0644'
+  become: yes
+
+- name: Restart bind9
+  command: echo "Restarting the dns services"
+  notify: "restart bind"

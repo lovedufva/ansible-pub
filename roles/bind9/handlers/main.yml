@@ -1,0 +1,8 @@
+---
+- name: Restart bind9
+  service:
+    name: bind9
+    state: restarted
+    enabled: yes
+  listen: "restart bind"
+  become: yes

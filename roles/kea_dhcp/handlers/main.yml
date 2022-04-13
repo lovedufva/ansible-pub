@@ -1,0 +1,32 @@
+---
+- name: Restart kea-dhcp4
+  service:
+    name: isc-kea-dhcp4-server
+    state: restarted
+    enabled: yes
+  listen: "restart kea"
+  become: yes
+
+- name: Restart kea-dhcp6
+  service:
+    name: isc-kea-dhcp6-server
+    state: restarted
+    enabled: yes
+  listen: "restart kea"
+  become: yes
+
+- name: Restart kea-dhcp-ddns
+  service:
+    name: isc-kea-dhcp-ddns-server
+    state: restarted
+    enabled: yes
+  listen: "restart kea"
+  become: yes
+
+- name: Restart webhook
+  service:
+    name: webhook
+    state: restarted
+    enabled: yes
+  listen: "restart webhook"
+  become: yes

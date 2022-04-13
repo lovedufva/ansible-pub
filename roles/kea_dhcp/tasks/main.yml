@@ -1,0 +1,113 @@
+---
+
+- name: Install python3-pip
+  apt:
+    name: python3-pip
+    state: present
+  become: yes
+
+- name: Install webhook
+  apt:
+    name: webhook
+    state: present
+  become: yes
+
+- name: Install pynetbox
+  pip:
+    name: pynetbox
+
+- name: Install isc-kea*
+  apt:
+    name: isc-kea*
+    state: present
+  become: yes
+
+- name: Create kea-dhcp4 config
+  template:
+    src: kea-dhcp4.conf.j2
+    dest: /etc/kea/kea-dhcp4.conf
+    owner: _kea
+    group: root
+    mode: '0644'
+  become: yes
+
+- name: Create kea-dhcp6 config
+  template:
+    src: kea-dhcp6.conf.j2
+    dest: /etc/kea/kea-dhcp6.conf
+    owner: _kea
+    group: root
+    mode: '0644'
+  become: yes
+
+- name: Create kea-dhcp-ddns config
+  template:
+    src: kea-dhcp-ddns.conf.j2
+    dest: /etc/kea/kea-dhcp-ddns.conf
+    owner: _kea
+    group: root
+    mode: '0644'
+  become: yes
+
+- name: Create kea-ctrl-agent config
+  template:
+    src: kea-ctrl-agent.conf.j2
+    dest: /etc/kea/kea-ctrl-agent.conf
+    owner: _kea
+    group: root
+    mode: '0644'
+  become: yes
+
+- name: Create webhook
+  template:
+    src: hooks.json.j2
+    dest: "{{ script_dir }}/hooks.json"
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+
+- name: Create netbox dhcp script
+  template:
+    src: netbox.py.j2
+    dest: "{{ script_dir }}/netbox.py"
+    owner: ldufva
+    group: ldufva
+    mode: '0755'
+
+- name: Create vlan aware config script
+  template:
+    src: dhcp.sh.j2
+    dest: "{{ script_dir }}/dhcp.sh"
+    owner: ldufva
+    group: ldufva
+    mode: '0755'
+
+- name: Create webhook systemd service
+  template:
+    src: webhook.service.j2
+    dest: /etc/systemd/system/webhook.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create netbox DDNS webhook
+  netbox.netbox.netbox_webhook:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      content_types:
+        - ipam.ipaddress
+      name: DDNS
+      type_create: yes
+      type_update: yes
+      type_delete: yes
+      payload_url: "http://{{ listen_address }}:9000/hooks/dhcp-webhook"
+
+- name: Restart kea
+  command: echo "Restarting the dhcp services"
+  notify: "restart kea"
+
+- name: Restart webhook
+  command: echo "Restarting the webhook service"
+  notify: "restart webhook"

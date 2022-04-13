@@ -1,0 +1,12 @@
+---
+- hosts: tags_dc
+  roles:
+    - kea_dhcp
+  tags:
+    - dhcp
+
+- hosts: tags_dc
+  roles:
+    - bind9
+  tags:
+    - dns

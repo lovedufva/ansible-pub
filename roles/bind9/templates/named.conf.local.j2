@@ -1,0 +1,27 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+key "{{ tsig_key_name }}" {
+	algorithm "{{ tsig_key_alg | lower }};
+	secret "{{ tsig_secret }}";
+};
+
+zone "{{ forward_domain }}" {
+	type master;
+	file "/var/lib/bind/db.{{ forward_domain }}";
+	update-policy {
+	  grant {{ tsig_key_name }} zonesub ANY;
+	};
+};
+
+zone "{{ reverse_domain }}.in-addr.arpa" {
+	type master;
+	file "/var/lib/bind/db.{{ reverse_domain }}";
+	update-policy {
+	  grant {{ tsig_key_name }} zonesub ANY;
+	};
+};

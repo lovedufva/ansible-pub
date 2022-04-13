@@ -1,0 +1,50 @@
+import pynetbox
+import json
+
+url   = "{{ netbox_url }}"
+token = "124b4caa12d45a2bc43c0c3494c194dc00a881d4"
+nb    = pynetbox.api(url, token=token)
+
+addresses = nb.ipam.ip_addresses.filter(parent='{{ subnet }}')
+
+# Initialize the list of reservations
+reservations = []
+
+# Loop over all addresses
+for address in addresses:
+  # Initialize the specific reservation and add the IP address.
+  # Split the address, since netbox stores it in CIDR notation
+  reservation = {}
+  splitadd = address.address.split("/")
+  reservation['ip-address'] = splitadd[0]
+
+  # Also store additional information needed below.
+  interface_url = address.assigned_object.url
+  interface_id  = address.assigned_object.id
+
+  # Separate between addresses of virtual servers and devices
+  # to retrieve the residual information
+  # Only store reservation with a MAC address entry
+  if "virtualization" in interface_url:
+    interface = nb.virtualization.interfaces.get(interface_id)
+    if interface.mac_address:
+      reservation['hostname'] = interface.virtual_machine.name
+      reservation['hw-address']  = interface.mac_address
+    else:
+      reservation.clear()
+
+  else:
+    interface = nb.dcim.interfaces.get(interface_id)
+    if interface.mac_address:
+      reservation['hostname'] = interface.device.name
+      reservation['hw-address']  = interface.mac_address
+    else:
+      reservation.clear()
+
+  # Append the new found reservation to the list
+  # if the entry exists, i.e. was not cleared.
+  if reservation:
+    reservations.append (reservation)
+
+with open ('/etc/kea/kea-dhcp-reservations.json', 'w') as outfile:
+  json.dump (reservations, outfile, indent=4)

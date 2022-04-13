@@ -1,0 +1,3 @@
+#!/bin/bash
+sudo -u {{ script_user }} python3 /opt/netbox.py
+systemctl restart isc-kea-dhcp4-server.service

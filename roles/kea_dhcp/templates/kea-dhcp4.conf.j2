@@ -1,0 +1,56 @@
+{
+"Dhcp4": {
+
+    "dhcp-ddns": {
+        "enable-updates": true
+    },
+
+    "ddns-qualifying-suffix": "{{ forward_domain }}",
+
+    "option-data": [
+        {
+           "name": "domain-name-servers",
+           "space": "dhcp4",
+           "data": "{{ dns_server }}"
+        },
+        {
+           "name": "domain-search",
+           "data": "{{ forward_domain }}, {{ search_domain }}"
+        }
+    ],
+
+    "valid-lifetime": 4000,
+    "renew-timer": 1000,
+    "rebind-timer": 2000,
+
+    "interfaces-config": {
+        "interfaces": [ "{{ listen_interface }}" ]
+    },
+
+    "lease-database": {
+        "type": "memfile",
+        "persist": true,
+        "name": "/var/lib/kea/dhcp4.leases",
+        "lfc-interval": 3600
+    },
+
+    "expired-leases-processing": {
+        "reclaim-timer-wait-time": 10,
+        "flush-reclaimed-timer-wait-time": 25,
+        "hold-reclaimed-time": 3600,
+        "max-reclaim-leases": 100,
+        "max-reclaim-time": 250,
+        "unwarned-reclaim-cycles": 5
+    },
+
+"subnet4": [
+  {
+    "subnet": "{{ subnet }}",
+    "interface": "{{ listen_interface }}",
+    "pools": [ { "pool": "{{ pool_start }} - {{ pool_end }}" } ],
+    "option-data": [ { "name": "routers", "data": "{{ gateway }}" } ],
+    "reservations": <?include "/etc/kea/kea-dhcp-reservations.json"?>
+  }
+]
+}
+}

@@ -1,0 +1,45 @@
+{
+"DhcpDdns": {
+
+    "ip-address": "127.0.0.1",
+    "port": 53001,
+    "dns-server-timeout": 100,
+    "ncr-protocol": "UDP",
+    "ncr-format": "JSON",
+    "tsig-keys": [
+	{
+		"name": "{{ tsig_key_name }}",
+		"algorithm": "{{ tsig_key_alg }}",
+		"secret": "{{ tsig_secret }}"
+	}
+ ],
+    "forward-ddns": {
+        "ddns-domains": [
+		{
+			"name": "{{ forward_domain }}.",
+			"key-name": "{{ tsig_key_name }}",
+			"dns-servers": [
+				{
+					"ip-address": "{{ dns_server }}",
+					"port": 53
+				}
+			]
+		}
+ 	]
+    },
+    "reverse-ddns": {
+        "ddns-domains": [
+		{
+			"name": "{{ reverse_domain }}.in-addr.arpa.",
+			"key-name": "{{ tsig_key_name }}",
+			"dns-servers": [
+				{
+					"ip-address": "{{ dns_server }}",
+					"port": 53
+				}
+			]
+		}
+	]
+    }
+}
+}

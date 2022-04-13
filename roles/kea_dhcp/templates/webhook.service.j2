@@ -1,0 +1,9 @@
+[Unit]
+Description=Webhook Service
+
+[Service]
+WorkingDirectory={{ script_dir }}
+ExecStart=/usr/bin/webhook -hooks hooks.json
+
+[Install]
+WantedBy=multi-user.target
