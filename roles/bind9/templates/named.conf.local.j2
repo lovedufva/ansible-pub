@@ -6,7 +6,7 @@
 // organization
 //include "/etc/bind/zones.rfc1918";
 key "{{ tsig_key_name }}" {
-	algorithm "{{ tsig_key_alg | lower }};
+	algorithm {{ tsig_key_alg | lower }};
 	secret "{{ tsig_secret }}";
 };
 
